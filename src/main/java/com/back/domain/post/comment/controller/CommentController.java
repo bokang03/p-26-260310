@@ -1,6 +1,6 @@
-package com.back.domain.post.commnet.controller;
+package com.back.domain.post.comment.controller;
 
-import com.back.domain.post.commnet.entity.Comment;
+import com.back.domain.post.comment.entity.Comment;
 import com.back.domain.post.post.entity.Post;
 import com.back.domain.post.post.service.PostService;
 import jakarta.validation.Valid;
