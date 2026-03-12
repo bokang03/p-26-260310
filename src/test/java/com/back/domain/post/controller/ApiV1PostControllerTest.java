@@ -17,9 +17,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.handler;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @SpringBootTest
 @ActiveProfiles("test")
@@ -44,6 +43,34 @@ public class ApiV1PostControllerTest {
 
         resultActions
                 .andExpect(status().isOk()); //404
+    }
+
+    @Test
+    @DisplayName("글 단건 조회")
+    void t2_1() throws Exception {
+
+        int targetId = 1;
+
+        ResultActions resultActions = mvc
+                .perform(
+                        get("/api/v1/posts/%d".formatted(targetId))
+                )
+                .andDo(print());
+
+        resultActions
+                .andExpect(handler().handlerType(ApiV1PostController.class))
+                .andExpect(handler().methodName("detail"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(1))
+                .andExpect(jsonPath("$.createDate").exists())
+                .andExpect(jsonPath("$.modifyDate").exists())
+                .andExpect(jsonPath("$.title").value("제목1"))
+                .andExpect(jsonPath("$.content").value("내용1"));
+
+//        Post post = postRepository.findById(targetId).get();
+//        resultActions
+//                .andExpect(jsonPath("$.title").value(post.getTitle()))
+//                .andExpect(jsonPath("$.content").value(post.getContent()));
     }
 
     @Test
