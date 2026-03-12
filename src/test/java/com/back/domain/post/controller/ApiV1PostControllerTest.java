@@ -1,5 +1,8 @@
 package com.back.domain.post.controller;
 
+import com.back.domain.post.post.controller.ApiV1PostController;
+import com.back.domain.post.post.entity.Post;
+import com.back.domain.post.post.repository.PostRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,11 +13,13 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.transaction.annotation.Transactional;
-
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.handler;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 
 @SpringBootTest
 @ActiveProfiles("test")
@@ -24,6 +29,9 @@ public class ApiV1PostControllerTest {
 
     @Autowired
     private MockMvc mvc;
+
+    @Autowired
+    private PostRepository postRepository;
 
     @Test
     @DisplayName("글 다건 조회")
@@ -59,5 +67,38 @@ public class ApiV1PostControllerTest {
 
         resultActions
                 .andExpect(status().isCreated());
+    }
+
+    @Test
+    @DisplayName("글 수정")
+    void t3() throws Exception {
+        int targetId = 1;
+        String title = "제목 수정";
+        String content = "내용 수정";
+
+        ResultActions resultActions = mvc
+                .perform(
+                        put("/api/v1/posts/%d".formatted(targetId))
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content("""
+                                        {
+                                            "title": "%s",
+                                            "content": "%s"
+                                        }
+                                        """.formatted(title, content))
+                )
+                .andDo(print());
+
+        // 필수 검증
+        resultActions
+                .andExpect(handler().handlerType(ApiV1PostController.class))
+                .andExpect(handler().methodName("modify"))
+                .andExpect(status().isOk());
+
+        // 선택적 검증
+        Post post = postRepository.findById(targetId).get();
+
+        assertThat(post.getTitle()).isEqualTo(title);
+        assertThat(post.getContent()).isEqualTo(content);
     }
 }
