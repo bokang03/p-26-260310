@@ -61,5 +61,10 @@ public class Post extends BaseEntity {
         comments.remove(comment);
     }
 
+    public void modifyComment(int commentId, String content) {
+        Comment comment = findCommentById(commentId).get();
+        comment.update(content);
+    }
+
 
 }
